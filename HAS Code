@@ -1,0 +1,150 @@
+/*
+Info:
+LED1(White) for LDR: ledLDR
+LED2(Green) for Temperature: ledTEMP
+LED3(Blue) for Rain: ledRAIN
+(LED3 is NOT included in tinkercad as capacitive sensor is unavailable)
+LED4(Yellow) for movement: ledMOVE
+*/
+
+//LED1; Darkness
+const int analogLDR = A1; //Analog Input for LDR
+const int ledLDR= 4; //Initialize LED for darkness
+int sensorvalue= 0;
+
+//LED2; Temperature
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(2, 3, 10, 11, 12, 13);
+int ledTEMP = 5; //initialize LED for temperature
+const int temp36 = A0; // Analog Input for TMP36
+
+/* //LED3; rain detector
+#include<CapacitiveSensor.h>
+CapacitiveSensor capSensor = CapacitiveSensor(0,1); //Capacitive sensor pins
+int threshold = 70;
+const int ledRAIN = 6; //initialize LED for rain */
+
+//LED4; Movement
+#define trigPin 9
+#define echoPin 8
+#define ledMOVE 7
+int piezo = A2; //initalize Piezo
+
+void setup() {
+Serial.begin(9600);
+
+//LED1
+pinMode(ledLDR, OUTPUT); 
+    
+//LED2
+lcd.begin(16, 2);
+pinMode(ledTEMP, OUTPUT);
+
+/* //LED3
+  pinMode(ledRAIN, OUTPUT); */  
+  
+//LED4
+pinMode(trigPin, OUTPUT);
+pinMode(echoPin, INPUT);
+pinMode(ledMOVE, OUTPUT);
+pinMode(piezo,OUTPUT);
+}
+
+void loop() {
+  
+//LED1
+sensorvalue= analogRead(analogLDR);
+if (sensorvalue < 550){
+Serial.print("LDR has sensed that it is NIGHT, the value is ");
+Serial.print(sensorvalue);
+Serial.println("...Good evening Sir/ Madam!");
+digitalWrite(ledLDR, HIGH); //LED on  
+}
+else{
+Serial.print("LDR has sensed that it is MORNING, the value is ");
+Serial.print(sensorvalue);
+Serial.println("...Good morning Sir/ Madam!");
+digitalWrite(ledLDR, LOW); //LED off
+}
+ 
+//LED2
+//Formula
+int sensorVal = analogRead(temp36);
+float voltage = (sensorVal / 1024.0) * 5.0;
+float temperature = (voltage - .5) * 100;
+//Printing on the lcd
+lcd.setCursor(0,0);
+lcd.print("Degree C = ");
+lcd.print(temperature);
+//Print on serial monitor and LED switching on/off
+if (temperature >35 ){
+Serial.print("Temperature is HIGH; degree is ");
+Serial.print(temperature);
+Serial.println("...Oh my! It's so hot!");
+digitalWrite(ledTEMP, HIGH); //LED ON
+delay(500); //wait for 0.5 seconds
+digitalWrite(ledTEMP, LOW);// LED OFF
+delay(500);//wait for 0.5 seconds
+}
+else if (temperature <16){
+Serial.print("Temperature is LOW; degree is ");
+Serial.print(temperature);
+Serial.println("...Brrrr....It's cold!");
+digitalWrite(ledTEMP, HIGH); //LED on
+delay(2000); //wait for 2 seconds
+digitalWrite(ledTEMP, LOW); //LED off
+delay(2000); //wait for 2 seconds
+}
+else {
+Serial.print("Temperature is NORMAL; Degree is ");
+Serial.print(temperature);
+Serial.println("...Love the cooling weather!");
+digitalWrite(ledTEMP, HIGH); //LED on
+delay(1000); //wait for 1 second
+digitalWrite(ledTEMP, LOW); //LED off
+delay(1000); //wait for 1 second
+}
+
+/* //LED3
+long sensorValue = capSensor.capacitiveSensor(30);
+Serial.println(SensorValue);
+
+if(sensorValue > threshold){
+digitalWrite(ledRAIN, HIGH);
+Serial.print("Capacitive sensor has sensed light rain...Remember to keep the laundry!");
+}else{
+digitalWrite(ledRAIN,LOW);
+Serial.print("Capacitive sensor knows that it's still sunny!");
+}
+delay(10);  */  
+  
+//LED4
+long duration, distance;
+digitalWrite(trigPin, LOW); 
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10); 
+digitalWrite(trigPin, LOW);
+duration = pulseIn(echoPin, HIGH);
+distance = (duration/2) / 29.1;
+  
+if (distance < 35) {  
+digitalWrite(ledMOVE,HIGH);
+delay(1000);
+digitalWrite(ledMOVE, LOW);
+digitalWrite(piezo, HIGH);
+Serial.print("Ultrasonic sensor has DETECTED TARGET within ");
+Serial.print(distance);
+Serial.println("cm range...Careful, might be a stranger!");
+Serial.println("   ");
+}
+else{
+digitalWrite(ledMOVE,LOW);
+digitalWrite(piezo, LOW);
+Serial.print("Ultrasonic sensor has DETECTED NO TARGET within ");
+Serial.print(distance);
+Serial.println("cm range...You're safe from any stranger danger!");
+Serial.println("   ");
+}
+delay(1000);
+} 
