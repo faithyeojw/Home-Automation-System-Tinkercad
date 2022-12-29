@@ -1,4 +1,8 @@
 # Home-Automation-System-Tinkercad-
-hey there!
+hey there! :3
 
-this file can be used to be deployed in Tinkercad to stimulate a smart home system with an arduino!
+this file can be used to deploy in Tinkercad to stimulate a smart home system with an arduino.
+
+the code is written in c++.
+
+have fun trying out! :)
